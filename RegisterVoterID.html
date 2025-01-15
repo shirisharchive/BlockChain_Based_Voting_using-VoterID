@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="RegisterVoterID.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+  <title>Register Voter</title>
+</head>
+<body>
+  <h1>Register Voter</h1>
+  <form id="voterForm" onsubmit="registerVoter(); return false;">
+    <label for="voterId">Enter Voter ID:</label>
+    <input type="number" id="voterId" placeholder="Enter voter ID" required>
+    <button type="submit">Register</button>
+  </form>
+  
+ 
+</body>
+</html>

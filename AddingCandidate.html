@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Candidate</title>
+   <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+   <script src="./addingCandidate.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Add Candidate to BlockChain</h1>
+    <form id="candidateForm">
+      <label for="name">Candidate Name:</label>
+      <input type="text" id="name" name="name" required>
+
+      <label for="party">Party:</label>
+      <input type="text" id="party" name="party" required>
+
+      <label for="position">Position:</label>
+      <input type="text" id="position" name="position" required>
+
+      <button type="submit">Add Candidate</button>
+    </form>
+    <div class="message" id="message"></div>
+  </div>
+
+  
+  
+</body>
+</html>

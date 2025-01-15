@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vote</title>
+  <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+</head>
+<body>
+  <h1>Vote for a Candidate</h1>
+  <form id="voterForm">
+    <label for="voterID">Enter Your Voter ID:</label>
+    <input type="number" id="voterID" required>
+    <button type="button" id="setVoterID">Set Voter ID</button>
+  </form>
+
+  <div id="candidateInfo">
+    <h3>Candidate List:</h3>
+    <table border="1" id="candidateTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Party</th>
+          <th>Position</th>
+          <th>Vote Count</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Candidate rows with vote buttons will be appended here -->
+      </tbody>
+    </table>
+  </div>
+
+ 
+  <p id="status"></p>
+
+  <script>
+    // Contract details
+    const contractAddress = "0xf10D75B85b7d4D5DB3c1d9C92CC4214f09F37F44";
+    const contractABI =   [
+    {
+      "inputs": [],
+      "name": "candidateCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "candidates",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "party",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "position",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "voteCount",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "name": "hasVotedForPosition",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "registeredVoterIDs",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "registeredVoters",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "voterVotes",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_name",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_party",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_position",
+          "type": "string"
+        }
+      ],
+      "name": "addCandidate",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_voterID",
+          "type": "uint256"
+        }
+      ],
+      "name": "registerVoter",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "voterID",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "candidateId",
+          "type": "uint256"
+        }
+      ],
+      "name": "vote",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "candidateId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getCandidate",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "party",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "position",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "voteCount",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "voterID",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "position",
+          "type": "string"
+        }
+      ],
+      "name": "checkIfVotedForPosition",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    },
+    {
+      "inputs": [],
+      "name": "getRegisteredVoters",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "voterID",
+          "type": "uint256"
+        }
+      ],
+      "name": "getVoterVote",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    }
+  ]
+
+    let web3;
+    let votingContract;
+    let voterID = null; // Store the voter ID after it is set
+
+    async function initWeb3() {
+      if (window.ethereum) {
+        web3 = new Web3(window.ethereum);
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+        votingContract = new web3.eth.Contract(contractABI, contractAddress);
+        await loadCandidates();
+      } else {
+        alert("Please install MetaMask to use this application.");
+      }
+    }
+
+    // candidate haru ko list appear hunxa along with vote button in action column
+    async function loadCandidates() {
+      const tableBody = document.getElementById("candidateTable").querySelector("tbody");
+
+      try {
+        const count = await votingContract.methods.candidateCount().call();
+
+        for (let i = 0; i < count; i++) {
+          const candidate = await votingContract.methods.getCandidate(i).call();
+
+          // Create a new row
+          const row = document.createElement("tr");
+
+          // Add cells to the row
+          row.innerHTML = `
+            <td>${i}</td>
+            <td>${candidate[0]}</td>
+            <td>${candidate[1]}</td>
+            <td>${candidate[2]}</td>
+            <td>${candidate[3]}</td>
+            <td><button onclick="voteForCandidate(${i})">Vote</button></td>
+          `;
+
+          // Append the row to the table
+          tableBody.appendChild(row);
+        }
+      } catch (error) {
+        console.error("Error fetching candidates:", error);
+      }
+    }
+
+    // Function to vote for  candidates
+
+    async function voteForCandidate(candidateId) {
+      const statusElement = document.getElementById("status");
+
+      if (!voterID) {
+        statusElement.textContent = "Please set your Voter ID first!";
+        return;
+      }
+
+      if (!web3 || !votingContract) {
+        statusElement.textContent = "Web3 is not initialized. Please connect to MetaMask.";
+        return;
+      }
+
+      try {
+        const accounts = await web3.eth.getAccounts();
+        const tx = await votingContract.methods.vote(voterID, candidateId).send({ from: accounts[0] });
+        statusElement.textContent = `Vote successful for candidate ${candidateId}! Transaction Hash: ${tx.transactionHash}`;
+
+        // Refresh the candidate list to show updated vote counts
+        document.getElementById("candidateTable").querySelector("tbody").innerHTML = "";
+        await loadCandidates();
+      } catch (error) {
+        statusElement.textContent = `Error: ${error.message}`;
+      }
+    }
+
+    // Set Voter ID
+    document.getElementById("setVoterID").addEventListener("click", async () => {
+  const voterInput = document.getElementById("voterID").value;
+
+  if (!voterInput) {
+    alert("Please enter a valid Voter ID!");
+    return;
+  }
+
+  try {
+    voterID = parseInt(voterInput, 10);
+    if (isNaN(voterID)) {
+      alert("Invalid Voter ID. Please enter a numeric ID.");
+      return;
+    }
+
+    // Check if the voter is registered
+    const isRegistered = await votingContract.methods.registeredVoters(voterID).call();
+    if (isRegistered) {
+      document.getElementById("status").textContent = `Voter ID set to ${voterID}. You can now cast a vote.`;
+    } else {
+      voterID = null; // Reset voterID
+      document.getElementById("status").textContent = "This Voter ID is not registered.";
+      alert("You are not registered as a voter!");
+    }
+  } catch (error) {
+    console.error("Error verifying voter registration:", error);
+    alert("An error occurred while verifying your registration. Please try again.");
+  }
+});
+
+
+    // Initialize Web3 when the page loads
+
+    window.onload = initWeb3;
+  </script>
+</body>
+</html>
