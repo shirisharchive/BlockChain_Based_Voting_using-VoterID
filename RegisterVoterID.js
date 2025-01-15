@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Initialize Web3
     web3 = new Web3(window.ethereum);
 
-    // Replace with your smart contract ABI and address
+    
     const abi = [
       {
         "inputs": [{ "internalType": "uint256", "name": "_voterID", "type": "uint256" }],
@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     ];
 
-    const contractAddress = "0xf10D75B85b7d4D5DB3c1d9C92CC4214f09F37F44"; // Replace with your contract address
+    const contractAddress = "0xf10D75B85b7d4D5DB3c1d9C92CC4214f09F37F44"; 
     contract = new web3.eth.Contract(abi, contractAddress);
 
     console.log("Web3 initialized and contract loaded");
