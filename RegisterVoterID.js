@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     ];
 
-    const contractAddress = "0xf10D75B85b7d4D5DB3c1d9C92CC4214f09F37F44"; 
+    const contractAddress = "0x64ade527939281294262534Bbf0f7388195e2E39"; 
     contract = new web3.eth.Contract(abi, contractAddress);
 
     console.log("Web3 initialized and contract loaded");
