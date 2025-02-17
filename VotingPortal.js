@@ -2,7 +2,7 @@ let web3;
 let votingContract;
 let voterID = null; // Store the voter ID after it is set
 
-const contractAddress = "0x64ade527939281294262534Bbf0f7388195e2E39";
+const contractAddress = "0x22e5365724f4B50b9F67b632eF14326ACFD13D17";
 const contractABI = [
  
   {
@@ -73,30 +73,54 @@ async function loadCandidates() {
 
   try {
     const count = await votingContract.methods.candidateCount().call();
+    const candidatesByParty = {};
 
+    // Group candidates by party
     for (let i = 0; i < count; i++) {
       const candidate = await votingContract.methods.getCandidate(i).call();
+      if (!candidatesByParty[candidate.party]) {
+        candidatesByParty[candidate.party] = [];
+      }
+      candidatesByParty[candidate.party].push({ index: i, ...candidate });
+    }
 
-      // Create a new row
+    // Now loop through each party and create rows
+    for (let party in candidatesByParty) {
+      const partyCandidates = candidatesByParty[party];
+
+      // Create a row for each party
       const row = document.createElement("tr");
 
-      // Add cells to the row
-      row.innerHTML = `
-        <td>${i}</td>
-        <td>${candidate.name}</td>
-        <td>${candidate.party}</td>
-        <td>${candidate.position}</td>
-        <td>${candidate.voteCount}</td>
-        <td><button onclick="voteForCandidate(${i})">Vote</button></td>
-      `;
-
-      // Append the row to the table
+      // Add party name as the first cell
+      const partyCell = document.createElement("td");
+      partyCell.colSpan = 6; // Merge cells across the table width
+      partyCell.textContent = `Party: ${party}`;
+      row.appendChild(partyCell);
       tableBody.appendChild(row);
+
+      // Create candidate cells for each candidate in this party
+      const candidateRow = document.createElement("tr");
+
+      // Loop through candidates in the party and add them as cells in the row
+      partyCandidates.forEach((candidate) => {
+        const candidateCell = document.createElement("td");
+        candidateCell.innerHTML = `
+          <b>Name:</b> ${candidate.name}<br>
+          <b>Position:</b> ${candidate.position}<br>
+          <b>Vote Count:</b> ${candidate.voteCount}<br>
+          <button onclick="voteForCandidate(${candidate.index})">Vote</button>
+        `;
+        candidateRow.appendChild(candidateCell);
+      });
+
+      // Append the candidate row
+      tableBody.appendChild(candidateRow);
     }
   } catch (error) {
     console.error("Error fetching candidates:", error);
   }
 }
+
 
 // Function to vote for a candidate
 async function voteForCandidate(candidateId) {

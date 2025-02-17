@@ -151,7 +151,7 @@
       }
     ];
 
-    const contractAddress = "0x64ade527939281294262534Bbf0f7388195e2E39"; 
+    const contractAddress = "0x22e5365724f4B50b9F67b632eF14326ACFD13D17"; 
      const contract = new web3.eth.Contract(abi, contractAddress);
 
      async function displayCandidates() {
